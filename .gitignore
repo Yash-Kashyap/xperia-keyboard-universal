@@ -1,0 +1,21 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary build artifacts
+*.tmp
+*.idsig
+temp_unaligned.apk
+temp_aligned.apk
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment
+.venv/
+env/
+venv/
+ENV/

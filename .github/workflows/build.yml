@@ -1,0 +1,56 @@
+name: Build & Verify Universal Xperia Keyboard
+
+on:
+  push:
+    branches: [ main, master ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set up Java & Android SDK Tools
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Android Build Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zipalign apksigner
+
+      - name: Run Build Pipeline
+        run: |
+          python build.py
+
+      - name: Run Compatibility Audit
+        run: |
+          python patcher/verifier.py release/Xperia-Keyboard-Universal-v8.0.A.0.110.apk
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Xperia-Keyboard-Universal-APK
+          path: release/Xperia-Keyboard-Universal-v8.0.A.0.110.apk
+
+      - name: Create Release on Tag
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/Xperia-Keyboard-Universal-v8.0.A.0.110.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
